@@ -1,0 +1,11 @@
+# Production
+fastapi
+sqlalchemy
+# fastapi-sqlalchemy
+requests
+uvicorn
+peewee
+databases
+aiosqlite
+# Testing
+behave
