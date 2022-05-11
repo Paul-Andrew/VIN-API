@@ -18,7 +18,6 @@ DB_URL = 'sqlite:///vin_db'
 DECODE_API_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/'
 DECODE_PARAMS = {'format': 'json'}
 # \w allows underscore...
-
 VIN_REGEX = "^[A-Za-z0-9]{17}$"
 
 

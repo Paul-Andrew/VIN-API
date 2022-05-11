@@ -5,6 +5,8 @@ sqlalchemy
 requests
 uvicorn
 peewee
+pandas
+fastparquet
 databases
 aiosqlite
 # Testing
