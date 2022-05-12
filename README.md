@@ -4,6 +4,12 @@
 
 A caching API which provides vehicle details as found in the  vPIC API.
 
+## Install
+clone the git repo, and install dependencies with pip:
+```commandline
+pip -r requirements.txt
+```
+
 ## For testing, use Behave.
 ```
 $ behave 
@@ -26,6 +32,6 @@ Start a local deployment, and visit:
 `http://127.0.0.1:8000/docs`
 
 ## Notes and to do
- - While testing, I ran into the VPIC API going down for maintenance late at night.  This appears as an API response with status 307.
+ - While testing, I ran into the VPIC API going down for maintenance late at night.  It might be a good idea to mock the api in testing, or download the offline DB and refresh it periodically, especially if high availability is a goal.
  - Consider the size in RAM of the SQLite database and potential Parquet files when loading large numbers of VINs.  It may be worth while to write the database to file and implement streaming for export.
  - 

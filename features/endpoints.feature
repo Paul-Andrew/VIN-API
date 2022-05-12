@@ -35,6 +35,7 @@ Feature: VIN API
         When user accesses export endpoint
         Then server should respond with empty Parquet
 
+    @slow
     Scenario: User accesses export while cache contains 2 vehicles
         Given vehicle info is in cache
         And another vehicle's info is in cache

@@ -1,5 +1,8 @@
 from behave import given, when, then
 import requests
+from io import BytesIO
+from tempfile import NamedTemporaryFile
+import pandas as pd
 
 
 server_path = "http://127.0.0.1:8888/"
@@ -21,7 +24,7 @@ def remove(vin):
 
 
 def export():
-    return requests.get(server_path + 'export/')
+    return requests.get(server_path + 'export')
 
 
 @when(u'user accesses lookup endpoint with a new VIN')
@@ -127,4 +130,7 @@ def step_impl(context):
 def step_impl(context):
     assert context.response.status_code == 200
     assert context.response.raw
-    # TODO: Better Parquet paring test
+    f = NamedTemporaryFile()
+    f.write(context.response.content)
+    df = pd.read_parquet(f.name)
+    assert df.shape == (2, 6)
