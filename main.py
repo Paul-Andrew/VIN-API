@@ -10,7 +10,6 @@ from sqlalchemy.orm import sessionmaker, Session
 from pandas import read_sql_table
 
 
-
 # vin API config
 DECODE_API_URL = 'https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/'
 DECODE_PARAMS = {'format': 'json'}
