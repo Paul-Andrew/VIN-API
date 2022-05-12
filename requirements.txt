@@ -5,6 +5,5 @@ requests
 uvicorn
 pandas
 pyarrow
-fastparquet
 # Testing
 behave
