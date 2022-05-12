@@ -1,13 +1,9 @@
 # Production
 fastapi
 sqlalchemy
-# fastapi-sqlalchemy
 requests
 uvicorn
-peewee
 pandas
 fastparquet
-databases
-aiosqlite
 # Testing
 behave

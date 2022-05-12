@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Depends, Response
+from fastapi.exceptions import HTTPException
 import requests
 import re
 from tempfile import NamedTemporaryFile
@@ -36,10 +37,14 @@ def load_vin(vin):
         params=DECODE_PARAMS
     )
     # Is it valid to return 429 if we get a 429?
-    if response.status_code == 200:
-        results = response.json()['Results'][0]
-        # print(results)
-        return results
+    if response.status_code != 200:
+        raise HTTPException(
+            response.status_code,
+            f"Error loading VIN Data:\n{response.text}"
+        )
+
+    results = response.json()['Results'][0]
+    return results
 
 
 class Vehicle(Base):
@@ -85,19 +90,19 @@ def map_api_to_db(api_vehicle, cached=True):
     return db_vehicle
 
 
-app = FastAPI()
+app = FastAPI(swagger_ui_parameters={"syntaxHighlight.theme": "obsidian"})
 
 
 @app.get('/lookup/{vin}')
 async def lookup(vin, db: Session = Depends(get_db)):
+    """
+    ### Lookup VIN Details
+    VIN must be a 17 character string containing only alphanumeric characters.
+    """
     if not validate_vin(vin):
-        return 400, f'VIN not valid: {vin}'
+        raise HTTPException(400, f'VIN not valid: {vin}')
     query = select(Vehicle).filter_by(vin=vin)
     vehicle = db.execute(query).first()
-    # vehicle = db.query(select(Vehicle)).filter(Vehicle.vin == vin).first()
-    # vehicle = db.get(Vehicle, vin)
-
-    print(vehicle)
     if vehicle:
         return vehicle[0]
     else:
@@ -112,8 +117,12 @@ async def lookup(vin, db: Session = Depends(get_db)):
 
 @app.delete('/remove/{vin}')
 async def remove(vin, db: Session = Depends(get_db)):
+    """
+    ### Remove VIN Details from Cache
+    VIN must be a 17 character string containing only alphanumeric characters.
+    """
     if not validate_vin(vin):
-        return 400, f'VIN not valid: {vin}'
+        raise HTTPException(400, f'VIN not valid: {vin}')
     query = select(Vehicle).filter_by(vin=vin)
     vehicle = db.execute(query).first()
     result = vehicle is not None
@@ -122,14 +131,18 @@ async def remove(vin, db: Session = Depends(get_db)):
         db.execute(query)
         db.commit()
     return {'vin': vin, 'success': result}
-    # Return VIN and success/failure
 
 
 @app.get('/export')
 async def export(db: Session = Depends(get_db)):
+    """
+    ### Export VIN Details Cache
+    Output in Parquet format.
+    """
     f = NamedTemporaryFile()
     data = read_sql_table('vehicles', con=db.connection(), columns=Vehicle().column_names())
     pq = data.to_parquet(f.name)
     # TODO: Set a Mime-type when one is registered.
     # https://issues.apache.org/jira/browse/PARQUET-1889
+    # TODO: Handle stream response for larger datasets
     return Response(f.read())
